@@ -1,0 +1,206 @@
+---
+title: "Project-Group 24""
+output:
+  word_document: default
+  html_notebook: default
+---
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+```
+
+
+```{r}
+berdo <- berdo_data_for_disclosure_calendar_year_2018_1_
+```
+
+
+```{r}
+```
+
+
+```{r}
+berdo <- read_excel("C:/Users/palash/Downloads/berdo-data-for-disclosure-calendar-year-2018 (1).xlsx")
+head(berdo)
+```
+
+```{r}
+# eliminate unuseful columns
+clean_berdo <- berdo[, -c(1, 4, 9, 17, 19, 20, 21, 22, 23, 25)]
+head(clean_berdo)
+names(clean_berdo) <- c("reported", "proptype", "zip", "area", "EUI", "ESScore", "propuse", "yearbuilt", "GHGEmission", "GHGIntensity", "totalenergy", "electricity", "gas", "water", "covered")
+clean_berdo$EUI <- as.numeric(clean_berdo$EUI)
+clean_berdo$GHGEmission <- as.numeric(clean_berdo$GHGEmission)
+clean_berdo$GHGIntensity <- as.numeric(clean_berdo$GHGIntensity)
+clean_berdo$totalenergy <- as.numeric(clean_berdo$totalenergy)
+clean_berdo$water <- as.numeric(clean_berdo$water)
+
+```
+
+```{r}
+summary(clean_berdo)
+```
+
+```{r}
+
+mean_berdo <- clean_berdo %>% 
+  select(proptype, area, EUI, ESScore, GHGEmission, GHGIntensity, totalenergy, electricity, gas, water) %>% 
+  group_by(proptype) %>% summarise_all(funs(mean), na.rm = TRUE)
+
+
+```
+
+
+
+
+
+``
+
+
+by_year_clean_berdo <- clean_berdo %>%
+filter(yearbuilt > 1970) %>%
+group_by(yearbuilt) %>%
+summarise(meantotalenergy = mean(totalenergy, na.rm = TRUE),
+          meanGHGintensity = mean(GHGIntensity, na.rm = TRUE),
+                              mean_elec_consump = mean(electricity, na.rm = TRUE),
+                              mean_gas_consump = mean(water, na.rm = TRUE),
+                              mean_water_consump = mean(gas, na.rm = TRUE))
+
+
+
+ggplot(by_year_clean_berdo, aes(x= meantotalenergy, y = yearbuilt)) + geom_point()
+#plotting the yearbuilt and meantotalenergy, the mean total energy from 1971 to 2018 is mostly 2.5 * 10^7
+
+
+ggplot(by_year_clean_berdo, aes(x= yearbuilt, y = meanGHGintensity)) + geom_point()
+#the meanGHGintensity is uniform or does not change significantly as compared to total energy
+
+ggplot(by_year_clean_berdo, aes(x= mean_elec_consump, y = yearbuilt)) + geom_point()
+#as seen from the scatterplot , the mean energy consumption from 1971 to 2018 is not same and changes from 0.3 to 0.6 with huge variations in between
+
+ggplot(by_year_clean_berdo, aes(x= yearbuilt, y = mean_gas_consump)) + geom_point()
+#the mean gas consumption is constant during the time period
+
+ggplot(by_year_clean_berdo, aes(x= mean_water_consump, y = yearbuilt)) + geom_point()
+#it can be clearly seen that the mean water consumption changes rapidly during the time period
+
+ggplot(by_year_clean_berdo, aes(x= area, y = GHGEmission)) + geom_point()+ scale_x_log10()
+# it can be cleary seen that as the area increases from 10*5, the GHG Emissions starts to change rapidly.
+#above the areas 10*5, there is a huge peak and fluctuations in GHG Emissions continue.
+
+
+
+ggplot(clean_berdo, aes(x= electricity, y = area)) + geom_point()
+
+clean_berdo_new <- clean_berdo %>%
+                    filter( yearbuilt > 2010)
+
+ggplot(clean_berdo_new, aes(x= yearbuilt, y = totalenergy, color = covered))+geom_point()
+#This plot shows the relation between total energy and yearbuilt and also the color shows whether they are covered or not. It can be clearly seen that total energy above 5*10^7 has all the plots as not covered under
+#five year compliance.
+
+
+
+clean_berdo_new <- clean_berdo %>%
+                    filter( yearbuilt > 2000, yearbuilt < 2010)
+
+ggplot(clean_berdo_new, aes(x= yearbuilt, y = totalenergy, color = covered))+geom_point()
+
+
+clean_berdo_new <- clean_berdo %>%
+                    filter( yearbuilt > 1990, yearbuilt < 2000)
+
+ggplot(clean_berdo_new, aes(x= yearbuilt, y = totalenergy, color = covered))+geom_point()
+#this plot covers the data from 1990 to 2000 onwards, and it is clearly seen that between 2.5*10^7 and 
+#1*10^8, the scatter plot is mostly covered while upto 2.5*10^7, the area is mostly not covered
+
+
+clean_berdo_new <- clean_berdo %>%
+                    filter( yearbuilt >1980, yearbuilt < 1990)
+
+ggplot(clean_berdo_new, aes(x= yearbuilt, y = totalenergy, color = covered))+geom_point()
+
+
+
+clean_berdo_new <- clean_berdo %>%
+                    filter( yearbuilt > 1970, yearbuilt < 1980)
+
+ggplot(clean_berdo_new, aes(x= yearbuilt, y = totalenergy, color = covered))+geom_point()
+#it can be seen that from hte year 1970 to 1990, the total energy covered and not covered is not clear but those buildings having low energy are mostly under not covered region
+
+clean_berdo_new <- clean_berdo %>%
+                    filter( yearbuilt > 1960, yearbuilt < 1970)
+
+ggplot(clean_berdo_new, aes(x= yearbuilt, y = totalenergy, color = covered))+geom_point()
+
+
+clean_berdo_new <- clean_berdo %>%
+                    filter( yearbuilt > 1950, yearbuilt <1960)
+                    
+ggplot(clean_berdo_new, aes(x= yearbuilt, y = totalenergy, color = covered))+geom_point()
+
+
+clean_berdo_new <- clean_berdo %>%
+                    filter( yearbuilt > 1940, yearbuilt <1950)
+
+ggplot(clean_berdo_new, aes(x= yearbuilt, y = totalenergy, color = covered))+geom_point() 
+
+
+
+ggplot(clean_berdo_new, aes(x = GHGEmission)) +
+        geom_histogram()+ scale_x_log10()
+
+#it can be seen that in the GHGEmission histogram, the emission is high between 100 and 10000 having its peak near 1000
+
+ggplot(clean_berdo_new, aes(x = area)) +
+        geom_histogram()+ scale_x_log10()
+        
+#it can be seen that the area in the range 1*10^5 is the highest with its range to plus minus 10^1
+
+
+ggplot(clean_berdo_new, aes(x = totalenergy)) +
+        geom_histogram(binwidth = .2) + scale_x_log10()
+  
+#it can be seen that the total energy lies mainly in the range 10*6 to 10*8 with its peak at 10*7
+
+ggplot(clean_berdo_new, aes(x = electricity)) +
+        geom_histogram()
+
+#it can be seen clearly that  most of the electricity consumption is in the range 0.20 to 0.30.
+#Its peak lies at 1 at which the count is 20
+
+ggplot(clean_berdo_new, aes(x = gas)) +
+        geom_histogram()
+      
+# In the histogram of the gas consumption, the histogram signifies that major consumption is in the range 0.75 to 1 
+
+ggplot(clean_berdo_new, aes(x=GHGEmission, y=electricity, color=covered)) + 
+  geom_boxplot()
+#In the comparision of GHE Emissions and electricity, it can be seen that the median of not covered has a lower median and range while as the box plot in the covered has a higher median and range. Wider boxplots indicate more variable data. In the above case, it can be seen that the covered one has a wider boxplot which means more variable data.  
+
+
+ggplot(clean_berdo_new, aes(x=GHGEmission, y=gas, color=covered)) + 
+  geom_boxplot()
+
+#In the comparision of GHE Emissions and gas, it can be seen that the boxplot of not covered has a higher median and a smaller range while as the box plot in the covered has a lower median and wider range. Wider boxplots indicate more variable data. In the above case, it can be seen that the covered one has a wider boxplot which means more variable data.
+
+ggplot(clean_berdo_new, aes(x=GHGEmission, y=totalenergy, color=covered)) + 
+  geom_boxplot() + scale_x_log10()
+#In the comparision of GHE Emissions and totalenergy, it can be seen that the boxplot of not covered has a higher median and range while as the box plot in the covered has a higher median and range. Wider boxplots indicate more variable data. In the above case also, it can be seen that the covered one has a wider boxplot which means more variable data.
+
+
+ggplot(clean_berdo_new, aes(x=area, y=totalenergy, color=covered)) + 
+  geom_boxplot()
+
+#In the comparision of GHE Emissions and electricity, it can be seen that the boxplot of not covered has a lower median and range while as the box plot in the covered has a higher median and range. Wider boxplots indicate more variable data. In the above case also, it can be seen that the covered one has a wider boxplot which means more variable data.
+
+
+
+
+
+```
+
+
+
